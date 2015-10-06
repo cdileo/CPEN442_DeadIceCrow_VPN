@@ -14,9 +14,15 @@ class Application(tk.Frame):
 
 		self.QUIT = tk.Button(self, text = "QUIT", fg="red", command = root.destroy)
 		self.QUIT.pack(side = "bottom")
+		self.messageField = tk.Text(self)
+		self.messageField.pack(side = "bottom")
+		self.keyField = tk.Entry(self)
+		self.keyField.pack(side = "bottom")
 
 	def say_hi(self):
 		print("hi there, everyone!")
+		print("The current entered key is {}", self.keyField.get())
+		print("The current text entered is {}", self.messageField.get("1.0",'end-1c'))
 
 root = tk.Tk()
 app = Application(master = root)
