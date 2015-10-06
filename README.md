@@ -5,4 +5,4 @@ Members:
 Chris Dileo
 Hannah Sarson
 Sergey Skovorodnikov
-Michelle Findlay-Olynyk
+Michelle Findlay-Olynyk 
