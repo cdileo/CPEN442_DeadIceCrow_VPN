@@ -25,14 +25,14 @@ Server example:
 """
 
 
-def chat_client():
+def chat_client(host, port):
     if(len(sys.argv) < 3) :
         print 'Usage : python chat_client.py hostname port'
         sys.exit()
 
-    host = sys.argv[1]
-    port = int(sys.argv[2])
+    print("host", host, "port", port)
 
+    # create socket to connect
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(2)
 
@@ -40,11 +40,11 @@ def chat_client():
     try :
         s.connect((host, port))
     except :
-        print 'Unable to connect'
+        print 'Unable to connect: check provided host name, port and make sure server is up'
         sys.exit()
 
-    print 'Connected to remote host. You can start sending messages'
-    sys.stdout.write('[Me] ');
+    print "Connection established"
+    sys.stdout.write('Me: ');
     sys.stdout.flush()
 
     while 1:
@@ -63,13 +63,16 @@ def chat_client():
                 else :
                     #print data
                     sys.stdout.write(data)
-                    sys.stdout.write('[Me] '); sys.stdout.flush()
+                    sys.stdout.write('[Me] '); 
+                    sys.stdout.flush()
 
             else :
                 # user entered a message
                 msg = sys.stdin.readline()
                 s.send(msg)
-                sys.stdout.write('[Me] '); sys.stdout.flush()
+                #sys.stdout.write('[Me] '); 
+                print('Me:')
+                #sys.stdout.flush()
 
 
 # Program starts here
@@ -80,10 +83,29 @@ def main(argv):
             print(usage)
     except:
         print(usage)
+        sys.exit(2)
     
-    print "Arguments are fine"
-    sys.exit(chat_client())
+    for opt, arg in opts:
+        if opt in ("-h"):
+            print(usage)
+        elif opt in ("-s"):
+            print("Server IP", arg)
+            server = arg
+        elif opt in ("-p"):
+            print("Port number", arg)
+            port = int(arg)
+        elif opt in ("-m"):
+            print("Starting in mode", arg)
+            exit(1)
+        else:
+            print("Invalid arguments")
+            print(usage)
+            sys.exit(1)
+
+    sys.exit(chat_client(server, port))
 
 
+# DEFINITIONS OVER ##################################################    
+# Run program
 if __name__ == "__main__":
     main(sys.argv[1:]);
