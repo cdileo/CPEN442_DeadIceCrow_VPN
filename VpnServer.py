@@ -1,6 +1,7 @@
 import socket
 import select
 import threading
+import sys
 
 HOST = ''
 SOCKET_LIST = []
@@ -39,7 +40,7 @@ class VpnServer(threading.Thread):
                     SOCKET_LIST.append(sockfd)
                     print ("Client (%s, %s) connected" % addr)
 
-                    self.broadcast(server_socket, sockfd, "[%s:%s] entered our chatting room\n" % addr)
+                    self.send_everyone(server_socket, sockfd, "[%s:%s] entered our chatting room\n" % addr)
 
                 # a message from a client, not a new connection
                 else:
@@ -49,25 +50,31 @@ class VpnServer(threading.Thread):
                         data = sock.recv(RECV_BUFFER)
                         if data:
                             # there is something in the socket
-                            self.broadcast(server_socket, sock, "\r" +
+                            self.send_everyone(server_socket, sock, "\r" +
                                            '[' + str(sock.getpeername()) + '] ' + data)
+
+                            # try sending data to this single socket that's chosen at the moment
+                            print("[Me]")
+                            msg = sys.stdin.readline()
+                            sock.send(msg)
+
                         else:
                             # remove the socket that's broken
                             if sock in SOCKET_LIST:
                                 SOCKET_LIST.remove(sock)
 
                             # at this stage, no data means probably the connection has been broken
-                            self.broadcast(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
+                            self.send_everyone(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
 
                     # exception
                     except:
-                        self.broadcast(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
+                        self.send_everyone(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
                         continue
 
         server_socket.close()
 
     # broadcast chat messages to all connected clients
-    def broadcast (self, server_socket, sock, message):
+    def send_everyone (self, server_socket, sock, message):
         for socket in SOCKET_LIST:
             # send the message only to peer
             if socket != server_socket and socket != sock :

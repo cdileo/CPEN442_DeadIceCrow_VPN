@@ -16,6 +16,10 @@ class VpnClient(threading.Thread):
         self.socket_list = []
         self.my_socket = None
 
+    """
+    FUNCTION
+     starts client application of the VPN
+    """
     def start_client(self):
         print("start_client: starting client")
         # create socket to connect
@@ -60,7 +64,9 @@ class VpnClient(threading.Thread):
                     print('[Me] ')
 
 
-        # FUNCTION
-        # Returns socket
+        """
+        FUNCTION
+         Returns socket object instance
+        """
         def get_my_socket():
             return self.my_socket
