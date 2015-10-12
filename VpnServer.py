@@ -1,18 +1,21 @@
 import socket
 import select
+import threading
 
 HOST = ''
 SOCKET_LIST = []
 RECV_BUFFER = 4096
 PORT = 9009
 
-class VpnServer:
+class VpnServer(threading.Thread):
     def __init__(self):
+        threading.Thread.__init__(self)
         self.server = ''
         self.port = PORT
         self.socket_list = []
 
     def run_server(self):
+        print("run_server: starting server")
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((HOST, PORT))

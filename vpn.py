@@ -59,9 +59,18 @@ def main(argv):
 
     # Start client or server
     if op_mode == 1:
-        print("[SERVER MODE]")
+        print("[SERVER MODE: starting both client and server]")
+        #server = "192.168.0.22"
+        #port = 9009
+
         vpn_server = VpnServer()
+        #vpn_client = VpnClient(server, port)
         vpn_server.run_server()
+
+        #""" starting client on same machine as server """
+        #vpn_client.start_client()
+
+        print ("vpn: main: local client started on separate thread")
     else:
         print("[CLIENT MODE]")
         print("VpnClient: main: server %s port %d" % (server, port))

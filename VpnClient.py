@@ -6,15 +6,18 @@ import sys
 # Constants
 BUFFER_SIZE = 4096
 
-class VpnClient:
+
+class VpnClient(threading.Thread):
 
     def __init__(self, server, port):
+        threading.Thread.__init__(self)
         self.server = server
         self.port = port
         self.socket_list = []
         self.my_socket = None
 
     def start_client(self):
+        print("start_client: starting client")
         # create socket to connect
         self.mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.mysocket.settimeout(2)
