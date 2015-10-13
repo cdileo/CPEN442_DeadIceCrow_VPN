@@ -28,11 +28,12 @@ class Application(tk.Frame):
 		mf = self.messageField.get("1.0", 'end-1c')
 
 		print("hi there, everyone!")
-		self.textHistory.append(mf)
+		self.textHistory += mf
 		print("The current entered key is ", self.keyField.get())
 		print("The current text entered is ", mf)
 		print("The history is", self.textHistory)
-		self.messageField.set('')
+		self.textHistory += self.messageField.get('1.0', 'end')
+		self.messageField.delete('1.0', 'end')
 
 root = tk.Tk()
 app = Application(master = root)
