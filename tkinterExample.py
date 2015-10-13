@@ -1,6 +1,8 @@
 import tkinter as tk
 
 class Application(tk.Frame):
+	textHistory = ''
+
 	def __init__(self, master = None):
 		tk.Frame.__init__(self, master)
 		self.pack()
@@ -14,15 +16,23 @@ class Application(tk.Frame):
 
 		self.QUIT = tk.Button(self, text = "QUIT", fg="red", command = root.destroy)
 		self.QUIT.pack(side = "bottom")
+		
 		self.messageField = tk.Text(self)
 		self.messageField.pack(side = "bottom")
+		self.historyField = tk.Text(self, state='disabled')
+		self.historyField.pack(side = "bottom")
 		self.keyField = tk.Entry(self)
 		self.keyField.pack(side = "bottom")
 
 	def say_hi(self):
+		mf = self.messageField.get("1.0", 'end-1c')
+
 		print("hi there, everyone!")
-		print("The current entered key is {}", self.keyField.get())
-		print("The current text entered is {}", self.messageField.get("1.0",'end-1c'))
+		self.textHistory.append(mf)
+		print("The current entered key is ", self.keyField.get())
+		print("The current text entered is ", mf)
+		print("The history is", self.textHistory)
+		self.messageField.set('')
 
 root = tk.Tk()
 app = Application(master = root)
