@@ -30,7 +30,7 @@ class VpnClient(threading.Thread):
         try:
             self.mysocket.connect((self.server, self.port))
         except:
-            print 'Unable to connect: check provided host name, port and make sure server is up'
+            print ('Unable to connect: check provided host name, port and make sure server is up')
             return 1
 
         print("start: connection established")
@@ -49,7 +49,7 @@ class VpnClient(threading.Thread):
                     data = sock.recv(BUFFER_SIZE)
                     # If you can't read - connection interruption - exit
                     if not data:
-                        print '\nDisconnected from chat server'
+                        print ('\nDisconnected from chat server')
                         sys.exit()
                     else:
                         # print data

@@ -1,40 +1,65 @@
-import tkinter as tk
+from tkinter import *
+import vpn
 
-class Application(tk.Frame):
-	textHistory = ''
-
+class Application(Frame):
+	
 	def __init__(self, master = None):
-		tk.Frame.__init__(self, master)
+		Frame.__init__(self, master)
 		self.pack()
 		self.createWidgets()
+		
 
 	def createWidgets(self):
-		self.hi_there = tk.Button(self)
-		self.hi_there["text"] = "Hello World\n(click me)"
-		self.hi_there["command"] = self.say_hi
-		self.hi_there.pack(side="top")
+		self.mode = IntVar(self)
+		self.mode.set(1)
 
-		self.QUIT = tk.Button(self, text = "QUIT", fg="red", command = root.destroy)
-		self.QUIT.pack(side = "bottom")
+		self.toggleClient = Radiobutton(self, text="client", variable=self.mode, value=1, command=self.get_mode)
+		self.toggleClient.pack(side="top")
+		self.toggleServer = Radiobutton(self, text="server", variable=self.mode, value=2, command=self.get_mode)
+		self.toggleServer.pack(side="top")
+
+		self.sharedKey = Label(self, text="Shared Secret Value")
+		self.sharedKey.pack()
+		self.keyField = Entry(self)
+		self.keyField.pack()
+		self.enterKey = Button(self, text="Enter Secret Value", command=self.send_shared_key)
+		self.enterKey.pack()
 		
-		self.messageField = tk.Text(self)
-		self.messageField.pack(side = "bottom")
-		self.historyField = tk.Text(self, state='disabled')
-		self.historyField.pack(side = "bottom")
-		self.keyField = tk.Entry(self)
-		self.keyField.pack(side = "bottom")
+		self.dataToSendLabel = Label(self, text="Data to be Sent")
+		self.dataToSendLabel.pack()
+		self.dataToSend = Text(self)
+		self.dataToSend.pack()
+		self.enterdataToSend = Button(self, text="Enter Data to be Sent", command=self.send_data)
+		self.enterdataToSend.pack()
 
-	def say_hi(self):
-		mf = self.messageField.get("1.0", 'end-1c')
+		self.dataReceivedLabel = Label(self, text="Data Received")
+		self.dataReceivedLabel.pack()
+		self.dataReceived = Message(self)
+		self.dataReceived.pack()
 
-		print("hi there, everyone!")
-		self.textHistory += mf
-		print("The current entered key is ", self.keyField.get())
-		print("The current text entered is ", mf)
-		print("The history is", self.textHistory)
-		self.textHistory += self.messageField.get('1.0', 'end')
-		self.messageField.delete('1.0', 'end')
+		self.QUIT = Button(self, text = "QUIT", fg="red", command = root.destroy)
+		self.QUIT.pack()
 
-root = tk.Tk()
+# python vpn.py -s 128.189.217.70 -p 9009
+	def get_mode(self):
+		mode = self.mode.get()
+		if mode == 1:
+			print("CLIENT")
+			mode = '-s'
+		else:
+			mode = '-m'
+			print("SERVER")
+
+		vpn.main([mode, '128.189.217.70', '-p', 9009])
+
+	def send_shared_key(self):
+		key = self.keyField.get()
+		print("CODE "+key)
+
+	def send_data(self):
+		data = self.dataToSend.get("1.0", 'end-1c')
+		print("DATA "+data)
+
+root = Tk()
 app = Application(master = root)
 app.mainloop()

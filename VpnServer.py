@@ -24,7 +24,7 @@ class VpnServer(threading.Thread):
         self.socket_list.append(server_socket)
         self.socket_list.append(sys.stdin)
 
-        print "Chat server started on port " + str(PORT)
+        print ("Chat server started on port " + str(PORT))
 
         running = 1
 
