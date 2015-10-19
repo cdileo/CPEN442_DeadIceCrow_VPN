@@ -1,3 +1,4 @@
+import string
 import sys
 from VpnClient import VpnClient
 from VpnServer import VpnServer
@@ -79,6 +80,9 @@ def main(argv):
         vpn_client.port = port
         print("VpnClient: main: server %s port %d" % (vpn_client.server, vpn_client.port))
         vpn_client.start_client()
+
+
+
 
 
 # Run program
