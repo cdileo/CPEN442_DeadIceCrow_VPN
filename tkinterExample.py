@@ -1,5 +1,4 @@
 from tkinter import *
-import vpn
 
 class Application(Frame):
 	
@@ -29,7 +28,7 @@ class Application(Frame):
 		self.dataToSendLabel.pack()
 		self.dataToSend = Text(self)
 		self.dataToSend.pack()
-		self.enterdataToSend = Button(self, text="Enter Data to be Sent", command=self.send_data)
+		self.enterdataToSend = Button(self, text="Enter Data to be Sent", command=self.get_data)
 		self.enterdataToSend.pack()
 
 		self.dataReceivedLabel = Label(self, text="Data Received")
@@ -50,15 +49,17 @@ class Application(Frame):
 			mode = '-m'
 			print("SERVER")
 
-		vpn.main([mode, '128.189.217.70', '-p', 9009])
+		return mode
 
 	def send_shared_key(self):
 		key = self.keyField.get()
 		print("CODE "+key)
+		return key
 
-	def send_data(self):
+	def get_data(self):
 		data = self.dataToSend.get("1.0", 'end-1c')
 		print("DATA "+data)
+		return data
 
 root = Tk()
 app = Application(master = root)
