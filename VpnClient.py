@@ -18,7 +18,7 @@ class VpnClient(threading.Thread):
         self.my_socket = None
 
     """
-    FUNCTION
+    FUNCTIONhttps://raw.githubusercontent.com/cdileo/CPEN442_DeadIceCrow_VPN/master/left.jpg?token=AHQPa8M7BNlNxdwRBhgKSx6xNJ7I1oyIks5WL6hLwA%3D%3D
      starts client application of the VPN
     """
     def start_client(self):
@@ -56,7 +56,8 @@ class VpnClient(threading.Thread):
                         sys.exit()
                     else:
                         # print data
-                        #p_data = self.parse_data(data)
+                        parser = Parser()
+                        p_data = parser.parse_data(data)
                         sys.stdout.write(str(sock.getpeername()))
                         sys.stdout.write(": ")
                         sys.stdout.write(data)
@@ -94,7 +95,7 @@ class Parser():
         # The first two indexes are info about the client
         if data_list[0] == '500':
             key = data_list[1]
-            print("Recieving key: %s" % key)
+            print("Recieving challenge: %s" % key)
             return 1
         else:
             print("Got no code - just a regular string.")

@@ -2,6 +2,7 @@ import string
 import sys
 from VpnClientServer import VpnClientServer
 from VpnClient import VpnClient
+from Crypto import Crypto
 import getopt
 
 usage= ("\n"
@@ -59,24 +60,25 @@ def main(argv):
             sys.exit(1)
 
 
-    # if read_keys() != 1:
-    #     print("Exiting.")
-    #     sys.exit(1)
+    # FLOW
+
+    # read in the symmetric key
+    # read in an identifier e,g, "Bob" "Ildar"
+    # generate nonces
+    # start sending stuff
+
+    crypto = read_keys()
+
+    if not crypto:
+        print("Exiting.")
+        sys.exit(1)
 
     # Start client or server
     if op_mode == 1:
         print("[SERVER MODE: starting both client and server]")
-        #server = "192.168.0.22"
-        #port = 9009
-
-        vpn_server = VpnClientServer()
-        #vpn_client = VpnClient(server, port)
+        vpn_server = VpnClientServer(crypto)
         vpn_server.run_server()
 
-        #""" starting client on same machine as server """
-        #vpn_client.start_client()
-
-        print ("vpn: main: local client started on separate thread")
     else:
         print("[CLIENT MODE]")
         print("VpnClient: main: server %s port %d" % (server, port))
@@ -93,10 +95,25 @@ FUNCTION
  read keys sent
 """
 def read_keys():
+    crypto = Crypto()
+
+    # read in the key
     sys.stdout.write("Please enter the key: ")
     sys.stdout.flush()
-    key = sys.stdin.readline()
-    print("key entered %s" % key)
+    crypto.key = sys.stdin.readline()
+    # TODO can we store a key inside python object???
+    print("key entered %s" % crypto.key)
+
+    # read in the id
+    sys.stdout.write("Please enter your name: ")
+    sys.stdout.flush()
+    crypto.id = sys.stdin.readline()
+    print("name entered %s" % crypto.id)
+
+    # generate a nonce to be sent to the peer
+    crypto.generate_nonce()
+    print("Nonce generated %d" % 9999999)
+    # print("Nonce generated %d" % (crypto.generate_nonce().decode()))
 
     sys.stdout.write("Continue starting application? [y/n] ")
     sys.stdout.flush()
@@ -105,7 +122,7 @@ def read_keys():
     answer.replace('\n', '')
     print ("answer given %s" % repr(answer))
     if answer == "y\n":
-        return 1
+        return crypto
     if answer == "n\n":
         return 0
     else:

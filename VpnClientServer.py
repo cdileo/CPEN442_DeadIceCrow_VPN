@@ -1,20 +1,20 @@
 import socket
 import select
-import threading
 import sys
 import string
+from Crypto import Crypto
 
 BUFFER_SIZE = 4096
 PORT = 9009
 
-class VpnClientServer(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
+class VpnClientServer():
+    def __init__(self, crypto):
         self.server = ''
         self.port = PORT
         self.socket_list = []
         self.temp_socket = None
         self.server_socket = None
+        self.crypto = crypto
 
     def run_server(self):
         print("run_server: starting server")
@@ -26,6 +26,7 @@ class VpnClientServer(threading.Thread):
         print ("Chat server started on port %s" % str(PORT))
 
         # establish a connection
+        # TODO wrap into try-except
         sockfd, addr = self.temp_socket.accept()
         print ("Client (%s, %s) connected" % addr)
 
@@ -34,6 +35,13 @@ class VpnClientServer(threading.Thread):
         print("Connection established")
         sys.stdout.write("[Me] ")
         sys.stdout.flush()
+
+
+        # call a function that will send all challenge: nonce and ID
+
+        init_msg = "500" + " " + str(self.crypto.nonce) + " " + str(self.crypto.id)
+        self.server_socket.send(init_msg.encode())
+
 
         while 1:
 
