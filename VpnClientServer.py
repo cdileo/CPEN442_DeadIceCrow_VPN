@@ -37,14 +37,15 @@ class VpnClientServer():
 
 
         # call a function that will send all challenge: nonce and ID
+        #         print(self.crypto.my_nonce)
+        # struct.unpack("<L", b'\xa7\xa5Ah')[0]
 
-        print(" from server: %d" % self.crypto.my_nonce)
-        print(" from server: %s" % self.crypto.my_nonce)
 
-        init_msg = b''.append(self.crypto.my_nonce)
-        init_msg.append(bytearray(" "))
-        init_msg.append(bytearray(self.crypto.id))
-        self.server_socket.send(init_msg)
+        init_msg = str(int.from_bytes(self.crypto.my_nonce, byteorder='little')) + \
+                   " " + str(self.crypto.id)
+        # init_msg.append(" ")                    # string
+        # init_msg = (" " + str(self.crypto.id))    # string
+        self.server_socket.send(init_msg.encode())
 
 
         while 1:
@@ -57,7 +58,7 @@ class VpnClientServer():
             for read_fd in ready_to_read:
                 if read_fd == self.server_socket:
                     data = read_fd.recv(BUFFER_SIZE)
-                    data = data.decode()
+                    data = data
                     # If you can't read - connection interruption - exit
                     if not data:
                         print ('\nDisconnected from chat server')

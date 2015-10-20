@@ -13,7 +13,7 @@ class State(Enum):
     Init = 0
     KeyX = 1
     Challenge = 2
-    Send = 3
+    Final = 3
 
 
 class VpnClient(threading.Thread):
@@ -57,30 +57,38 @@ class VpnClient(threading.Thread):
             for sock in ready_to_read:
                 if sock == self.mysocket:
                     # if this is our socket then read from it
+
                     while self.state != State.Final:
+
                         if self.state == State.Init:
                             print("INIT")
                             #we're in the key exchange, expecting nonce then id
 
                             data = sock.recv(BUFFER_SIZE)
-                            data = data.decode()
                             # If you can't read - connection interruption - exit
                             if not data:
                                 print ('\nDisconnected from chat server')
                                 sys.exit()
                             else:
                                 parser = Parser()
+                                # reponse is a list of string
                                 response = parser.parse_data(data)
-                                self.crypto.peer_nonce = response[0]
-                                self.crypto.id = response[1]
-                                self.state = State.KeyX
+                                self.crypto.peer_nonce = response[0] # noncce
+                                self.crypto.id = response[1] # id
+                                if self.crypto.peer_nonce:
+                                    self.state = State.KeyX
+                                else:
+                                    print("[ERROR] Did not get a challenge.")
+                                    sys.exit(1)
 
                         elif self.state == State.KeyX:
                             print("KEYX")
-                        #   send challenge response
+                            # send challenge response - encrypt
                             send_data = self.send_challenge_response()
-                            sock.send(send_data)
+                            #send_data = "HAHAHAHAAH"
+                            sock.send(send_data.encode())
                             self.state = State.Challenge
+                            break
 
                         elif self.state == State.Challenge:
                             print("CHALLENGE")
