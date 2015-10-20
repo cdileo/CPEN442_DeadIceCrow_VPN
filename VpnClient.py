@@ -2,6 +2,7 @@ import threading
 import socket
 import select
 import sys
+import string
 
 # Constants
 BUFFER_SIZE = 4096
@@ -53,6 +54,7 @@ class VpnClient(threading.Thread):
                         sys.exit()
                     else:
                         # print data
+                        p_data = self.parse_data(data)
                         sys.stdout.write(data)
                         sys.stdout.write('[Me] ')
                         sys.stdout.flush()
@@ -64,9 +66,30 @@ class VpnClient(threading.Thread):
                     print('[Me] ')
 
 
-        """
-        FUNCTION
-         Returns socket object instance
-        """
-        def get_my_socket():
-            return self.my_socket
+    """
+    FUNCTION
+     Returns socket object instance
+    """
+    def get_my_socket(self):
+        return self.my_socket
+
+    """
+    FUNCTION
+        takes a string and parses it
+    """
+    def parse_data(self, data):
+        data_list = string.split(data, " ")
+
+        for w in data_list:
+            index = 0
+            print("%d %s" % (index, repr(w)) )
+            index = index + 1
+
+        # The first two indexes are info about the client
+        if data_list[2] == '500':
+            key = data_list[3].decode(encoding="UTF-8")
+            print("Recieving key: %s" % key)
+            return 1
+        else:
+            print("Got no code - just a regular string.")
+            return 0
