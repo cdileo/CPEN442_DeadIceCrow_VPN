@@ -45,6 +45,7 @@ class VpnClientServer(threading.Thread):
             for read_fd in ready_to_read:
                 if read_fd == self.server_socket:
                     data = read_fd.recv(BUFFER_SIZE)
+                    data = data.decode()
                     # If you can't read - connection interruption - exit
                     if not data:
                         print ('\nDisconnected from chat server')
@@ -61,7 +62,7 @@ class VpnClientServer(threading.Thread):
                 else:
                     # Read and send user's message
                     msg = sys.stdin.readline()
-                    self.server_socket.send(msg)
+                    self.server_socket.send(msg.encode())
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
 
@@ -76,7 +77,7 @@ class Parser():
         takes a string and parses it
     """
     def parse_data(self, data):
-        data_list = string.split(data, " ")
+        data_list = data.split(" ")
 
         for w in data_list:
             index = 0

@@ -59,9 +59,9 @@ def main(argv):
             sys.exit(1)
 
 
-    if read_keys() != 1:
-        print("Exiting.")
-        sys.exit(1)
+    # if read_keys() != 1:
+    #     print("Exiting.")
+    #     sys.exit(1)
 
     # Start client or server
     if op_mode == 1:

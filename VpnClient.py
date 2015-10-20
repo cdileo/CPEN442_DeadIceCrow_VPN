@@ -49,6 +49,7 @@ class VpnClient(threading.Thread):
                 if sock == self.mysocket:
                     # if this is our socket then read from it
                     data = sock.recv(BUFFER_SIZE)
+                    data = data.decode()
                     # If you can't read - connection interruption - exit
                     if not data:
                         print ('\nDisconnected from chat server')
@@ -65,7 +66,7 @@ class VpnClient(threading.Thread):
                 else:
                     # Read and send user's message
                     msg = sys.stdin.readline()
-                    self.mysocket.send(msg)
+                    self.mysocket.send(msg.encode())
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
 
@@ -77,12 +78,13 @@ class VpnClient(threading.Thread):
     def get_my_socket(self):
         return self.my_socket
 
+class Parser():
     """
     FUNCTION
         takes a string and parses it
     """
     def parse_data(self, data):
-        data_list = string.split(data, " ")
+        data_list = data.split(" ")
 
         for w in data_list:
             index = 0
@@ -90,8 +92,8 @@ class VpnClient(threading.Thread):
             index = index + 1
 
         # The first two indexes are info about the client
-        if data_list[2] == '500':
-            key = data_list[3].decode(encoding="UTF-8")
+        if data_list[0] == '500':
+            key = data_list[1]
             print("Recieving key: %s" % key)
             return 1
         else:
