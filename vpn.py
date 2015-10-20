@@ -4,59 +4,20 @@ from VpnClient import VpnClient
 from VpnServer import VpnServer
 import getopt
 
-usage= ("\n"
-        "Usage\n"
-        "-h      show this help message\n"
-        "-m      mode of operation\n"
-        "        \"server\" for server program\n"
-        "        \"client\" for client program\n"
-        "        If this setting is given all other arguments are ignored.\n"
-        "\n"
-        "-s      server IP to connect to (Client mode only)\n"
-        "-p      server port (Client mode only)\n"
-        "\n"
-        "Client example:\n"
-        "    python chat.py -m client -s 192.168.0.22 -p 6000\n"
-        "\n"
-        "Server example:\n"
-        "    python chat.py -m server\n"
-        "    All settings for server and port will be ignored.\n")
+from tkinter import *
+from tkinterExample import Application 
 
-def main(argv):
-    op_mode = 0
+def main():
+    root = Tk()
+    app = Application(master = root)
+    app.mainloop()
 
-    try:
-        opts, args = getopt.getopt(argv, "hs:p:m:")
-        if len(argv) == 0:
-            print(usage)
-    except:
-        print(usage)
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt in ("-h"):
-            print(usage)
-
-        # server IP
-        elif opt in ("-s"):
-            print("Server IP", arg)
-            server = arg
-
-        # port number
-        elif opt in ("-p"):
-            print("Port number", arg)
-            port = int(arg)
-
-        # Mode of operation: {server, client}
-        elif opt in ("-m"):
-            print("Starting server mode %s" % arg)
-            op_mode = 1
-
-        # Error case
-        else:
-            print("Invalid arguments")
-            print(usage)
-            sys.exit(1)
+    op_mode = app.mode.get()
+    host = app.host.get()
+    port = int(app.port.get())
+    # print(op_mode)
+    # print(host)
+    # print(port)
 
     # Start client or server
     if op_mode == 1:
@@ -64,7 +25,7 @@ def main(argv):
         #server = "192.168.0.22"
         #port = 9009
 
-        vpn_server = VpnServer()
+        vpn_server = VpnServer(host, port)
         #vpn_client = VpnClient(server, port)
         vpn_server.run_server()
 
@@ -74,17 +35,13 @@ def main(argv):
         print ("vpn: main: local client started on separate thread")
     else:
         print("[CLIENT MODE]")
-        print("VpnClient: main: server %s port %d" % (server, port))
-        vpn_client = VpnClient(server, port)
-        vpn_client.server = server
+        print("VpnClient: main: server %s port %d" % (host, port))
+        vpn_client = VpnClient(host, port)
+        vpn_client.host = host
         vpn_client.port = port
-        print("VpnClient: main: server %s port %d" % (vpn_client.server, vpn_client.port))
+        print("VpnClient: main: server %s port %d" % (vpn_client.host, vpn_client.port))
         vpn_client.start_client()
-
-
-
-
 
 # Run program
 if __name__ == "__main__":
-    main(sys.argv[1:]);
+    main()

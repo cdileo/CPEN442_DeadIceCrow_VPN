@@ -4,27 +4,27 @@ import threading
 import sys
 
 BUFFER_SIZE = 4096
-PORT = 9009
 
 class VpnServer(threading.Thread):
-    def __init__(self):
+    def __init__(self, host, port):
         threading.Thread.__init__(self)
         self.server = ''
-        self.port = PORT
+        self.host = host
+        self.port = port
         self.socket_list = []
 
     def run_server(self):
         print("run_server: starting server")
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind((self.server, self.port))
+        server_socket.bind((self.host, self.port))
         server_socket.listen(10)
 
         # add server socket object to the list of readable connections
         self.socket_list.append(server_socket)
         self.socket_list.append(sys.stdin)
 
-        print ("Chat server started on port " + str(PORT))
+        print ("Chat server started on port " + str(self.port))
 
         running = 1
 

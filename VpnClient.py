@@ -10,9 +10,9 @@ BUFFER_SIZE = 4096
 
 class VpnClient(threading.Thread):
 
-    def __init__(self, server, port):
+    def __init__(self, host, port):
         threading.Thread.__init__(self)
-        self.server = server
+        self.host = host
         self.port = port
         self.socket_list = []
         self.my_socket = None
@@ -29,7 +29,7 @@ class VpnClient(threading.Thread):
 
         # connect to remote host
         try:
-            self.mysocket.connect((self.server, self.port))
+            self.mysocket.connect((self.host, self.port))
         except:
             print ('Unable to connect: check provided host name, port and make sure server is up')
             return 1

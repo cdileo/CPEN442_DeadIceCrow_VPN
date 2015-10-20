@@ -10,12 +10,32 @@ class Application(Frame):
 
 	def createWidgets(self):
 		self.mode = IntVar(self)
-		self.mode.set(1)
+		self.mode.set(0)
 
-		self.toggleClient = Radiobutton(self, text="client", variable=self.mode, value=1, command=self.get_mode)
+		self.host = StringVar(self)
+		self.port = StringVar(self)
+		self.key = StringVar(self)
+		self.data = StringVar(self)
+		self.op_mode = IntVar(self)
+
+		self.toggleClient = Radiobutton(self, text="client", variable=self.mode, value=0, command=self.get_mode)
 		self.toggleClient.pack(side="top")
-		self.toggleServer = Radiobutton(self, text="server", variable=self.mode, value=2, command=self.get_mode)
+		self.toggleServer = Radiobutton(self, text="server", variable=self.mode, value=1, command=self.get_mode)
 		self.toggleServer.pack(side="top")
+
+		self.hostLabel = Label(self, text="Host")
+		self.hostLabel.pack()
+		self.hostEntry = Entry(self)
+		self.hostEntry.pack()
+		self.enterHost = Button(self, text="Enter host", command=self.get_host)
+		self.enterHost.pack()
+
+		self.portLabel = Label(self, text="Port")
+		self.portLabel.pack()
+		self.portEntry = Entry(self)
+		self.portEntry.pack()
+		self.enterPort = Button(self, text="Enter port", command=self.get_port)
+		self.enterPort.pack()
 
 		self.sharedKey = Label(self, text="Shared Secret Value")
 		self.sharedKey.pack()
@@ -36,31 +56,20 @@ class Application(Frame):
 		self.dataReceived = Message(self)
 		self.dataReceived.pack()
 
-		self.QUIT = Button(self, text = "QUIT", fg="red", command = root.destroy)
-		self.QUIT.pack()
-
-# python vpn.py -s 128.189.217.70 -p 9009
 	def get_mode(self):
-		mode = self.mode.get()
-		if mode == 1:
-			print("CLIENT")
-			mode = '-s'
-		else:
-			mode = '-m'
-			print("SERVER")
+		self.op_mode.set(self.mode.get())
 
-		return mode
+	def get_host(self):
+		self.host.set(self.hostEntry.get())
+
+	def get_port(self):
+		self.port.set(self.portEntry.get())
 
 	def send_shared_key(self):
 		key = self.keyField.get()
-		print("CODE "+key)
 		return key
 
 	def get_data(self):
 		data = self.dataToSend.get("1.0", 'end-1c')
 		print("DATA "+data)
 		return data
-
-root = Tk()
-app = Application(master = root)
-app.mainloop()
