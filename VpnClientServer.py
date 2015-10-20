@@ -2,6 +2,7 @@ import socket
 import select
 import threading
 import sys
+import string
 
 BUFFER_SIZE = 4096
 PORT = 9009
@@ -22,7 +23,7 @@ class VpnClientServer(threading.Thread):
         self.temp_socket.bind((self.server, self.port))
         self.temp_socket.listen(10)
 
-        print "Chat server started on port " + str(PORT)
+        print ("Chat server started on port %s" % str(PORT))
 
         # establish a connection
         sockfd, addr = self.temp_socket.accept()
@@ -46,11 +47,12 @@ class VpnClientServer(threading.Thread):
                     data = read_fd.recv(BUFFER_SIZE)
                     # If you can't read - connection interruption - exit
                     if not data:
-                        print '\nDisconnected from chat server'
+                        print ('\nDisconnected from chat server')
                         sys.exit()
                     else:
                         # print data
-                        #p_data = self.parse_data(data)
+                        parser = Parser()
+                        parser.parse_data(data)
                         sys.stdout.write(str(read_fd.getpeername()))
                         sys.stdout.write(": ")
                         sys.stdout.write(data)
@@ -64,3 +66,28 @@ class VpnClientServer(threading.Thread):
                     sys.stdout.flush()
 
     # self.server_socket.close()
+
+
+
+
+class Parser():
+    """
+    FUNCTION
+        takes a string and parses it
+    """
+    def parse_data(self, data):
+        data_list = string.split(data, " ")
+
+        for w in data_list:
+            index = 0
+            print("%d %s" % (index, repr(w)) )
+            index = index + 1
+
+        # The first two indexes are info about the client
+        if data_list[0] == '500':
+            key = data_list[1].decode(encoding="UTF-8")
+            print("Recieving key: %s" % key)
+            return 1
+        else:
+            print("Got no code - just a regular string.")
+            return 0
