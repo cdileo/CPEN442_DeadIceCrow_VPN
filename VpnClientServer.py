@@ -1,8 +1,7 @@
 import socket
 import select
 import sys
-import string
-from Crypto import Crypto
+from Parser import Parser
 
 BUFFER_SIZE = 4096
 PORT = 9009
@@ -39,8 +38,13 @@ class VpnClientServer():
 
         # call a function that will send all challenge: nonce and ID
 
-        init_msg = "500" + " " + str(self.crypto.nonce) + " " + str(self.crypto.id)
-        self.server_socket.send(init_msg.encode())
+        print(" from server: %d" % self.crypto.my_nonce)
+        print(" from server: %s" % self.crypto.my_nonce)
+
+        init_msg = b''.append(self.crypto.my_nonce)
+        init_msg.append(bytearray(" "))
+        init_msg.append(bytearray(self.crypto.id))
+        self.server_socket.send(init_msg)
 
 
         while 1:
@@ -74,29 +78,8 @@ class VpnClientServer():
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
 
-    # self.server_socket.close()
 
-
-
-
-class Parser():
-    """
-    FUNCTION
-        takes a string and parses it
-    """
-    def parse_data(self, data):
-        data_list = data.split(" ")
-
-        for w in data_list:
-            index = 0
-            print("%d %s" % (index, repr(w)) )
-            index = index + 1
-
-        # The first two indexes are info about the client
-        if data_list[0] == '500':
-            key = data_list[1].decode(encoding="UTF-8")
-            print("Recieving key: %s" % key)
-            return 1
-        else:
-            print("Got no code - just a regular string.")
-            return 0
+    # FUNCTION
+    # close function
+    def close_socket(self):
+        self.server_socket.close()

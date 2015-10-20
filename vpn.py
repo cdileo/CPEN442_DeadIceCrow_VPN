@@ -2,7 +2,7 @@ import string
 import sys
 from VpnClientServer import VpnClientServer
 from VpnClient import VpnClient
-from Crypto import Crypto
+from CryptoCore import CryptoCore
 import getopt
 
 usage= ("\n"
@@ -82,10 +82,11 @@ def main(argv):
     else:
         print("[CLIENT MODE]")
         print("VpnClient: main: server %s port %d" % (server, port))
-        vpn_client = VpnClient(server, port)
+        vpn_client = VpnClient(server, port, crypto)
         vpn_client.server = server
         vpn_client.port = port
-        print("VpnClient: main: server %s port %d" % (vpn_client.server, vpn_client.port))
+        print("VpnClient: main: server %s port %d" % (
+            vpn_client.server, vpn_client.port))
         vpn_client.start_client()
 
 
@@ -95,25 +96,27 @@ FUNCTION
  read keys sent
 """
 def read_keys():
-    crypto = Crypto()
+    # Create crypto and init nonce
+    print("read_keys: before CrytoCore")
+    crypto = CryptoCore()
 
     # read in the key
     sys.stdout.write("Please enter the key: ")
     sys.stdout.flush()
     crypto.key = sys.stdin.readline()
     # TODO can we store a key inside python object???
-    print("key entered %s" % crypto.key)
+
 
     # read in the id
     sys.stdout.write("Please enter your name: ")
     sys.stdout.flush()
     crypto.id = sys.stdin.readline()
-    print("name entered %s" % crypto.id)
 
-    # generate a nonce to be sent to the peer
-    crypto.generate_nonce()
-    print("Nonce generated %d" % 9999999)
-    # print("Nonce generated %d" % (crypto.generate_nonce().decode()))
+    print("SUMMARY: ")
+    print("Symmetric key entered %s" % crypto.key)
+    print("Name (id) entered %s" % crypto.id)
+    print("My nonce generated (32 bits) %d" % int.from_bytes(crypto.my_nonce, byteorder='little') )
+    print("\n")
 
     sys.stdout.write("Continue starting application? [y/n] ")
     sys.stdout.flush()
