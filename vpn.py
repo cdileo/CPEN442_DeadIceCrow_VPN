@@ -58,6 +58,11 @@ def main(argv):
             print(usage)
             sys.exit(1)
 
+
+    if read_keys() != 1:
+        print("Exiting.")
+        sys.exit(1)
+
     # Start client or server
     if op_mode == 1:
         print("[SERVER MODE: starting both client and server]")
@@ -83,6 +88,28 @@ def main(argv):
 
 
 
+"""
+FUNCTION
+ read keys sent
+"""
+def read_keys():
+    sys.stdout.write("Please enter the key: ")
+    sys.stdout.flush()
+    key = sys.stdin.readline()
+    print("key entered %s" % key)
+
+    sys.stdout.write("Continue starting application? [y/n] ")
+    sys.stdout.flush()
+
+    answer = sys.stdin.readline()
+    answer.replace('\n', '')
+    print ("answer given %s" % repr(answer))
+    if answer == "y\n":
+        return 1
+    if answer == "n\n":
+        return 0
+    else:
+        return -1
 
 
 # Run program
