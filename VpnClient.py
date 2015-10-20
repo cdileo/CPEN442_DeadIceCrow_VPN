@@ -34,8 +34,9 @@ class VpnClient(threading.Thread):
             print 'Unable to connect: check provided host name, port and make sure server is up'
             return 1
 
-        print("start: connection established")
-        print("[ME] ")
+        print("Connection established")
+        sys.stdout.write("[Me] ")
+        sys.stdout.flush()
 
         # Enter loop and alternate reading from stdin and socket
         while 1:
@@ -54,7 +55,9 @@ class VpnClient(threading.Thread):
                         sys.exit()
                     else:
                         # print data
-                        p_data = self.parse_data(data)
+                        #p_data = self.parse_data(data)
+                        sys.stdout.write(str(sock.getpeername()))
+                        sys.stdout.write(": ")
                         sys.stdout.write(data)
                         sys.stdout.write('[Me] ')
                         sys.stdout.flush()
@@ -63,7 +66,8 @@ class VpnClient(threading.Thread):
                     # Read and send user's message
                     msg = sys.stdin.readline()
                     self.mysocket.send(msg)
-                    print('[Me] ')
+                    sys.stdout.write("[Me] ")
+                    sys.stdout.flush()
 
 
     """

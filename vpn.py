@@ -1,7 +1,7 @@
 import string
 import sys
+from VpnClientServer import VpnClientServer
 from VpnClient import VpnClient
-from VpnServer import VpnServer
 import getopt
 
 usage= ("\n"
@@ -26,7 +26,7 @@ def main(argv):
     op_mode = 0
 
     try:
-        opts, args = getopt.getopt(argv, "hs:p:m:")
+        opts, args = getopt.getopt(argv, "hs:p:S")
         if len(argv) == 0:
             print(usage)
     except:
@@ -48,7 +48,7 @@ def main(argv):
             port = int(arg)
 
         # Mode of operation: {server, client}
-        elif opt in ("-m"):
+        elif opt in ("-S"):
             print("Starting server mode %s" % arg)
             op_mode = 1
 
@@ -64,7 +64,7 @@ def main(argv):
         #server = "192.168.0.22"
         #port = 9009
 
-        vpn_server = VpnServer()
+        vpn_server = VpnClientServer()
         #vpn_client = VpnClient(server, port)
         vpn_server.run_server()
 
@@ -87,4 +87,4 @@ def main(argv):
 
 # Run program
 if __name__ == "__main__":
-    main(sys.argv[1:]);
+    main(sys.argv[1:])
