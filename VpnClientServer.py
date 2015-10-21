@@ -68,10 +68,11 @@ class VpnClientServer():
             for sock in ready_to_read:
                 if sock == self.server_socket:
 
-                    data = sock.recv(BUFFER_SIZE)
+
                     # If you can't read - connection interruption - exit
 
                     if self.state != State.Final:
+                        data = sock.recv(BUFFER_SIZE)
                         while self.state != State.Final:
 
                             if self.state == State.Init:
