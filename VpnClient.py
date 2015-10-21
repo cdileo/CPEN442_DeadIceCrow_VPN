@@ -4,6 +4,7 @@ import select
 import sys
 from Parser import Parser
 from enum import Enum
+import struct
 
 # Constants
 BUFFER_SIZE = 4096
@@ -47,6 +48,8 @@ class VpnClient(threading.Thread):
         sys.stdout.write("[Me] ")
         sys.stdout.flush()
 
+
+
         # Enter loop and alternate reading from stdin and socket
         while 1:
             self.socket_list = [sys.stdin, self.mysocket]
@@ -74,7 +77,12 @@ class VpnClient(threading.Thread):
                                 # reponse is a list of string
                                 response = parser.parse_data(data)
                                 self.crypto.peer_nonce = response[0] # noncce
+                                print("PEER NONCE")
+                                print(self.crypto.peer_nonce)
                                 self.crypto.id = response[1] # id
+
+
+
                                 if self.crypto.peer_nonce:
                                     self.state = State.KeyX
                                 else:
@@ -83,27 +91,64 @@ class VpnClient(threading.Thread):
 
                         elif self.state == State.KeyX:
                             print("KEYX")
-                            # send challenge response - encrypt
+
                             send_data = self.send_challenge_response()
-                            #send_data = "HAHAHAHAAH"
                             sock.send(send_data.encode())
+
+                            ready_to_read, ready_to_write, in_error = select.select(self.socket_list, [], [])
+                            for sock2 in ready_to_read:
+                                if sock2 == self.mysocket:
+                                    data = sock2.recv(BUFFER_SIZE)
+
+
+                            if not data:
+                                print("!!!!!!!NO DATA")
+                                sys.exit()
+
+                            # send challenge response - encrypt
+                            # send_data = self.send_challenge_response()
+                            # sock.send(send_data.encode())
                             self.state = State.Challenge
-                            break
 
                         elif self.state == State.Challenge:
                             print("CHALLENGE")
+                            parser = Parser()
+                            # reponse is a list of string
+                            response = parser.parse_data(data)
+                            print("RESPONSE")
+                            print(response)
+                            # uncomment this when we encrypt
+                            # plain = self.crypto.decrypt_all(response[1])
+                            # plain is decrypted, unparsed string with nonce, id,
+
+
+                            sessionInfo = response
+                            print("SESSION INFO")
+                            print(int(sessionInfo[1]))
+                            print(struct.unpack("<L",self.crypto.my_nonce)[0])
+                            if int(sessionInfo[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
+                                print("[ERROR] Not my nonce, man.")
+                                sys.exit(1)
+                            else:
+                                print("verified nonce!")
+                                self.crypto.session_key = (int(sessionInfo[2])**self.crypto.A) % self.crypto.p
+                                self.state = State.Final
+                            continue
                         #   verify response from 'Alice'
                         else:
                             print("BREAK")
                             break
 
-                    else:
-                        print("[ERROR] Authentication failed. Exiting.")
-                        sys.exit(1)
+                    # else:
+                    #     print("[ERROR] Authentication failed. Exiting.")
+                    #     sys.exit(1)
 
+
+                    # only when the state if FInal
+                    print("CLIENT OUT OF LOOP")
                     sys.stdout.write(str(sock.getpeername()))
                     sys.stdout.write(": ")
-                    sys.stdout.write(data)
+                    sys.stdout.write()
                     sys.stdout.write('[Me] ')
                     sys.stdout.flush()
 
@@ -131,5 +176,7 @@ class VpnClient(threading.Thread):
     def send_challenge_response(self):
         # generate the nonce
         # encrypt {ID, A's nonce, our session key part} with Master key
-        msg = "%s%s" % (self.crypto.my_nonce, self.crypto.encrypt_all())
+        msg = "%s %s" % (str(int.from_bytes(self.crypto.my_nonce, byteorder='little')),
+                         self.crypto.encrypt_all())
+        print("CLIENT SEND CHALLENGE RESPONSE msg is %s" % msg)
         return msg

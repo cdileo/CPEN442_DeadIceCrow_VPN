@@ -4,6 +4,8 @@ from VpnClientServer import VpnClientServer
 from VpnClient import VpnClient
 from CryptoCore import CryptoCore
 import getopt
+from Crypto import Random
+import os
 
 usage= ("\n"
         "Usage\n"
@@ -96,21 +98,24 @@ FUNCTION
  read keys sent
 """
 def read_keys():
-    # Create crypto and init nonce
-    print("read_keys: before CrytoCore")
-    crypto = CryptoCore()
-
     # read in the key
     sys.stdout.write("Please enter the key: ")
     sys.stdout.flush()
-    crypto.key = sys.stdin.readline()
-    # TODO can we store a key inside python object???
+    temp_key = sys.stdin.readline().rstrip()
 
+    key = pad_key(temp_key)
+
+    print("key is: ")
+    print(key)
+
+    # TODO can we store a key inside python object???
 
     # read in the id
     sys.stdout.write("Please enter your name: ")
     sys.stdout.flush()
-    crypto.id = sys.stdin.readline()
+    id = sys.stdin.readline().rstrip()
+
+    crypto = CryptoCore(key, id)
 
     print("SUMMARY: ")
     print("Symmetric key entered %s" % crypto.key)
@@ -130,6 +135,19 @@ def read_keys():
         return 0
     else:
         return -1
+
+"""
+FUCTION
+pad short key
+"""
+def pad_key(temp_key):
+    if len(temp_key) > 32:
+        print("KEY IS TOO LONG. TRY AGAIN. SHUTTING DOWN.")
+        sys.exit(1)
+    else:
+        print("PADDING SHORT KEY")
+        return temp_key.zfill(32)
+
 
 
 # Run program
