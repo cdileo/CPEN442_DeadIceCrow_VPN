@@ -16,7 +16,7 @@ usage= ("\n"
         "        If this setting is given all other arguments are ignored.\n"
         "\n"
         "-s      server IP to connect to (Client mode only)\n"
-        "-p      server port (Client mode only)\n"
+        "-p      server port\n"
         "\n"
         "Client example:\n"
         "    python chat.py -m client -s 192.168.0.22 -p 6000\n"
@@ -78,7 +78,7 @@ def main(argv):
     # Start client or server
     if op_mode == 1:
         print("[SERVER MODE: starting both client and server]")
-        vpn_server = VpnClientServer(crypto)
+        vpn_server = VpnClientServer(port, crypto)
         vpn_server.run_server()
 
     else:

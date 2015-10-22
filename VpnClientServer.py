@@ -6,7 +6,7 @@ from enum import Enum
 import struct
 
 BUFFER_SIZE = 4096
-PORT = 9009
+#PORT = 9009
 
 class State(Enum):
     Init = 0
@@ -15,9 +15,9 @@ class State(Enum):
     Final = 3
 
 class VpnClientServer():
-    def __init__(self, crypto):
+    def __init__(self, port, crypto):
         self.server = ''
-        self.port = PORT
+        self.port = port
         self.socket_list = []
         self.temp_socket = None
         self.server_socket = None
@@ -31,7 +31,7 @@ class VpnClientServer():
         self.temp_socket.bind((self.server, self.port))
         self.temp_socket.listen(10)
 
-        print ("Chat server started on port %s" % str(PORT))
+        print ("Chat server started on port %s" % str(self.port))
 
         # establish a connection
         # TODO wrap into try-except
