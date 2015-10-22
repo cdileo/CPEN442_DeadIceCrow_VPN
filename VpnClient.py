@@ -144,19 +144,18 @@ class VpnClient(threading.Thread):
                                 print("BREAK")
                                 #break
 
-                        # else:
-                        #     print("[ERROR] Authentication failed. Exiting.")
-                        #     sys.exit(1)
-
                     else:
                         # only when the state if FInal
+                        parser = Parser()
                         data = sock.recv(BUFFER_SIZE)
                         if not data:
                             sys.exit(1)
                         print("CLIENT OUT OF LOOP")
                         sys.stdout.write(str(sock.getpeername()))
                         sys.stdout.write(": ")
-                        sys.stdout.write(data.decode())
+                        decrypted_msg = self.crypto.cipher.decrypt(data)
+                        print(decrypted_msg)
+                        sys.stdout.write(decrypted_msg[-32:].decode())
                         sys.stdout.write('[Me] ')
                         sys.stdout.flush()
                         if self.destructCount > 0:
@@ -176,7 +175,8 @@ class VpnClient(threading.Thread):
 
                     # Read and send user's message
                     msg = sys.stdin.readline()
-                    self.mysocket.send(msg.encode())
+                    encrypted_msg = self.crypto.cipher.encrypt(msg)
+                    self.mysocket.send(encrypted_msg)
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
 

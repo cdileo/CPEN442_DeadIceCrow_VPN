@@ -132,11 +132,15 @@ class VpnClientServer():
                             # print data
                             # WOKRING CHAT
                             print("SERVER OUT OF LOOP")
+                            parser = Parser()
                             #parser = Parser()
                             #parser.parse_data(data)
                             sys.stdout.write(str(sock.getpeername()))
                             sys.stdout.write(": ")
-                            sys.stdout.write(data.decode())
+                            # decrypt here
+                            decrypted_msg = self.crypto.cipher.decrypt(data)
+                            print(decrypted_msg)
+                            sys.stdout.write(decrypted_msg[-32:].decode())
                             sys.stdout.write('[Me] ')
                             sys.stdout.flush()
                             if self.destructCount > 0:
@@ -155,7 +159,9 @@ class VpnClientServer():
                         print ("Have a nice day :)")
                         sys.exit(0)
                     msg = sys.stdin.readline()
-                    self.server_socket.send(msg.encode())
+                    # encrypt here
+                    encrypted_msg = self.crypto.cipher.encrypt(msg)
+                    self.server_socket.send(encrypted_msg)
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
 

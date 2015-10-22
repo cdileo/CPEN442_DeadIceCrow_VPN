@@ -27,12 +27,13 @@ class Parser():
     	return parsed_byte_string
 
     def parse_response(self, data):
-	    formatted_ciphertxt = data[1:].replace("'", "")
-	    return formatted_ciphertxt
+    	formatted_ciphertxt = data[1:].replace("'", "")
+    	return formatted_ciphertxt
 
     def parse_plaintxt(self, plain):
     	print("PARSING PLAIN TEXT")
     	plaintxt_parts = plain[-32:]
+    	print(plaintxt_parts)
     	try:
     		data_list = plaintxt_parts.decode().split(" ")
     	except:
