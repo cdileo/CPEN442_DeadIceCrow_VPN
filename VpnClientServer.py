@@ -6,7 +6,7 @@ from enum import Enum
 import struct
 
 BUFFER_SIZE = 4096
-PORT = 9009
+#PORT = 9009
 
 class State(Enum):
     Init = 0
@@ -15,14 +15,15 @@ class State(Enum):
     Final = 3
 
 class VpnClientServer():
-    def __init__(self, crypto):
+    def __init__(self, port, crypto):
         self.server = ''
-        self.port = PORT
+        self.port = port
         self.socket_list = []
         self.temp_socket = None
         self.server_socket = None
         self.crypto = crypto
         self.state = State.Init
+        self.destructCount = 10
 
     def run_server(self):
         print("run_server: starting server")
@@ -31,7 +32,7 @@ class VpnClientServer():
         self.temp_socket.bind((self.server, self.port))
         self.temp_socket.listen(10)
 
-        print ("Chat server started on port %s" % str(PORT))
+        print ("Chat server started on port %s" % str(self.port))
 
         # establish a connection
         # TODO wrap into try-except
@@ -61,6 +62,7 @@ class VpnClientServer():
         while 1:
 
             self.socket_list = [sys.stdin, self.server_socket]
+
 
             # last 0 : poll and never block while selecting
             ready_to_read,ready_to_write,in_error = select.select(self.socket_list,[],[])
@@ -126,6 +128,7 @@ class VpnClientServer():
                             print ('\nDisconnected from chat server')
                             sys.exit()
                         else:
+
                             # print data
                             # WOKRING CHAT
                             print("SERVER OUT OF LOOP")
@@ -136,8 +139,21 @@ class VpnClientServer():
                             sys.stdout.write(data.decode())
                             sys.stdout.write('[Me] ')
                             sys.stdout.flush()
+                            if self.destructCount > 0:
+                                self.destructCount -= 1
+                            else:
+                                print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                                print ("Have a nice day :)")
+                                sys.exit(0)
+
                 else:
                     # Read and send user's message
+                    if self.destructCount > 0:
+                        self.destructCount -= 1
+                    else:
+                        print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                        print ("Have a nice day :)")
+                        sys.exit(0)
                     msg = sys.stdin.readline()
                     self.server_socket.send(msg.encode())
                     sys.stdout.write("[Me] ")

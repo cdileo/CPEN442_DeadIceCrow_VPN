@@ -26,6 +26,7 @@ class VpnClient(threading.Thread):
         self.my_socket = None
         self.crypto = crypto
         self.state = State.Init
+        self.destructCount = 10
 
     """
     FUNCTION
@@ -150,14 +151,28 @@ class VpnClient(threading.Thread):
                     else:
                         # only when the state if FInal
                         data = sock.recv(BUFFER_SIZE)
+                        if not data:
+                            sys.exit(1)
                         print("CLIENT OUT OF LOOP")
                         sys.stdout.write(str(sock.getpeername()))
                         sys.stdout.write(": ")
                         sys.stdout.write(data.decode())
                         sys.stdout.write('[Me] ')
                         sys.stdout.flush()
+                        if self.destructCount > 0:
+                                self.destructCount -= 1
+                        else:
+                            print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                            print ("Have a nice day :)")
+                            sys.exit(0)
 
                 else:
+                    if self.destructCount > 0:
+                        self.destructCount -= 1
+                    else:
+                        print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                        print ("Have a nice day :)")
+                        sys.exit(0)
 
                     # Read and send user's message
                     msg = sys.stdin.readline()
