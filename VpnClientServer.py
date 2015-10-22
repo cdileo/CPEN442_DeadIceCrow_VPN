@@ -23,6 +23,7 @@ class VpnClientServer():
         self.server_socket = None
         self.crypto = crypto
         self.state = State.Init
+        self.destructCount = 10
 
     def run_server(self):
         print("run_server: starting server")
@@ -61,6 +62,7 @@ class VpnClientServer():
         while 1:
 
             self.socket_list = [sys.stdin, self.server_socket]
+
 
             # last 0 : poll and never block while selecting
             ready_to_read,ready_to_write,in_error = select.select(self.socket_list,[],[])
@@ -125,6 +127,7 @@ class VpnClientServer():
                             print ('\nDisconnected from chat server')
                             sys.exit()
                         else:
+
                             # print data
                             # WOKRING CHAT
                             print("SERVER OUT OF LOOP")
@@ -135,8 +138,21 @@ class VpnClientServer():
                             sys.stdout.write(data.decode())
                             sys.stdout.write('[Me] ')
                             sys.stdout.flush()
+                            if self.destructCount > 0:
+                                self.destructCount -= 1
+                            else:
+                                print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                                print ("Have a nice day :)")
+                                sys.exit(0)
+
                 else:
                     # Read and send user's message
+                    if self.destructCount > 0:
+                        self.destructCount -= 1
+                    else:
+                        print ("Hit our maximum number of messages. Terminating to protect forward secrecy.")
+                        print ("Have a nice day :)")
+                        sys.exit(0)
                     msg = sys.stdin.readline()
                     self.server_socket.send(msg.encode())
                     sys.stdout.write("[Me] ")
