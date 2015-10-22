@@ -35,7 +35,6 @@ class VpnClientServer():
         print ("Chat server started on port %s" % str(self.port))
 
         # establish a connection
-        # TODO wrap into try-except
         sockfd, addr = self.temp_socket.accept()
         print ("Client (%s, %s) connected" % addr)
 
@@ -45,16 +44,9 @@ class VpnClientServer():
         sys.stdout.write("[Me] ")
         sys.stdout.flush()
 
-
-        # call a function that will send all challenge: nonce and ID
-        #         print(self.crypto.my_nonce)
-        # struct.unpack("<L", b'\xa7\xa5Ah')[0]
-
-
         init_msg = str(int.from_bytes(self.crypto.my_nonce, byteorder='little')) + \
                    " " + str(self.crypto.id)
-        # init_msg.append(" ")                    # string
-        # init_msg = (" " + str(self.crypto.id))    # string
+
         self.server_socket.send(init_msg.encode())
         self.state = State.KeyX
 
@@ -63,15 +55,11 @@ class VpnClientServer():
 
             self.socket_list = [sys.stdin, self.server_socket]
 
-
             # last 0 : poll and never block while selecting
             ready_to_read,ready_to_write,in_error = select.select(self.socket_list,[],[])
 
             for sock in ready_to_read:
                 if sock == self.server_socket:
-
-
-                    # If you can't read - connection interruption - exit
 
                     if self.state != State.Final:
                         data = sock.recv(BUFFER_SIZE)
@@ -81,30 +69,20 @@ class VpnClientServer():
                                 print("hannah is cool")
 
                             elif self.state == State.KeyX:
-                                print("KEYX")
-                                # send challenge response - encryptta
-                                #print(len(data.decode()))
-                                #print("server data len %d" % len(data))
+                                print("P is "+str(self.crypto.p))
+                                print("G is "+str(self.crypto.g))
 
                                 parser = Parser()
                                 # reponse is a list of string
                                 response = parser.parse_data(data)
-                                print("RESPONSE")
-                                print(response)
-                                print("nonce is %s" % response[0])
+
                                 self.crypto.peer_nonce = str(response[0])
-                                print("PEER NONCE")
-                                print(self.crypto.peer_nonce)
                                 
                                 temp = parser.parse_byte_string(data)
                                 plain = self.crypto.decrypt_all(temp[1].encode())
-                                print("PLAIN")
-                                print(plain)
 
                                 nonce_and_msg = parser.parse_plaintxt(plain)
-                                print(nonce_and_msg)
 
-                                print(self.crypto.my_nonce)
                                 if int(nonce_and_msg[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
                                     print("[ERROR] Not my nonce, man.")
                                     sys.exit(1)
@@ -117,7 +95,6 @@ class VpnClientServer():
                                 continue
 
                             else:
-                                print("We know its Alice")
                                 print("BREAK")
                                 break
 
@@ -129,17 +106,12 @@ class VpnClientServer():
                             sys.exit()
                         else:
 
-                            # print data
-                            # WOKRING CHAT
-                            print("SERVER OUT OF LOOP")
                             parser = Parser()
-                            #parser = Parser()
-                            #parser.parse_data(data)
                             sys.stdout.write(str(sock.getpeername()))
                             sys.stdout.write(": ")
-                            # decrypt here
+
                             decrypted_msg = self.crypto.cipher.decrypt(data)
-                            print(decrypted_msg)
+                            print("received cipher text ", data)
                             sys.stdout.write(decrypted_msg[-32:].decode())
                             sys.stdout.write('[Me] ')
                             sys.stdout.flush()
@@ -159,8 +131,8 @@ class VpnClientServer():
                         print ("Have a nice day :)")
                         sys.exit(0)
                     msg = sys.stdin.readline()
-                    # encrypt here
                     encrypted_msg = self.crypto.cipher.encrypt(msg)
+                    print("encrypted message to be sent ", encrypted_msg)
                     self.server_socket.send(encrypted_msg)
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
@@ -182,5 +154,4 @@ class VpnClientServer():
         # generate the nonce
         # encrypt {ID, A's nonce, our session key part} with Master key
         msg = "%s" % (self.crypto.encrypt_all())
-        print("SERVER SEND CHALLENGE RESPONSE msg is %s" % msg)
         return msg

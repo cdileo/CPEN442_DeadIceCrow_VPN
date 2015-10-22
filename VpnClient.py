@@ -65,8 +65,8 @@ class VpnClient(threading.Thread):
                         while self.state != State.Final:
 
                             if self.state == State.Init:
-                                print("INIT")
-                                #we're in the key exchange, expecting nonce then id
+                                print("P is "+str(self.crypto.p))
+                                print("G is "+str(self.crypto.g))
 
                                 data = sock.recv(BUFFER_SIZE)
                                 # If you can't read - connection interruption - exit
@@ -75,14 +75,11 @@ class VpnClient(threading.Thread):
                                     sys.exit()
                                 else:
                                     parser = Parser()
-                                    # reponse is a list of string
                                     response = parser.parse_data(data)
-                                    self.crypto.peer_nonce = response[0] # noncce
+                                    self.crypto.peer_nonce = response[0]
                                     print("PEER NONCE")
                                     print(self.crypto.peer_nonce)
-                                    self.crypto.id = response[1] # id
-
-
+                                    self.crypto.id = response[1]
 
                                     if self.crypto.peer_nonce:
                                         self.state = State.KeyX
@@ -91,7 +88,6 @@ class VpnClient(threading.Thread):
                                         sys.exit(1)
 
                             elif self.state == State.KeyX:
-                                print("KEYX")
 
                                 send_data = self.send_challenge_response()
                                 sock.send(send_data.encode())
@@ -106,29 +102,17 @@ class VpnClient(threading.Thread):
                                     print("!!!!!!!NO DATA")
                                     sys.exit()
 
-                                # send challenge response - encrypt
-                                # send_data = self.send_challenge_response()
-                                # sock.send(send_data.encode())
                                 self.state = State.Challenge
 
                             elif self.state == State.Challenge:
-                                print("CHALLENGE")
                                 parser = Parser()
-                                # reponse is a list of string
+
                                 response = parser.parse_data(data)
-                                print("RESPONSE")
-                                print(response[0])
-                                # uncomment this when we encrypt
-                                # plain = self.crypto.decrypt_all(response[1])
-                                # plain is decrypted, unparsed string with nonce, id,
 
                                 parsed_byte_string = parser.parse_response(response[0])
-                                print("CLIENT PARSED BYTE STRING")
-                                print(parsed_byte_string)
 
                                 plain_txt = self.crypto.decrypt_all(parsed_byte_string.encode())
-                                print("PLAINTEXT CLIENT")
-                                print(plain_txt)
+
                                 sessionInfo = parser.parse_plaintxt(plain_txt)
                                 
                                 if int(sessionInfo[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
@@ -138,23 +122,20 @@ class VpnClient(threading.Thread):
                                     print("verified nonce!")
                                     self.crypto.session_key = (int(sessionInfo[2])**self.crypto.A) % self.crypto.p
                                     self.state = State.Final
-                                #continue
-                            #   verify response from 'Alice'
+
                             else:
                                 print("BREAK")
                                 #break
 
                     else:
                         # only when the state if FInal
-                        parser = Parser()
                         data = sock.recv(BUFFER_SIZE)
                         if not data:
                             sys.exit(1)
-                        print("CLIENT OUT OF LOOP")
                         sys.stdout.write(str(sock.getpeername()))
                         sys.stdout.write(": ")
                         decrypted_msg = self.crypto.cipher.decrypt(data)
-                        print(decrypted_msg)
+                        print("received cipher text ", data)
                         sys.stdout.write(decrypted_msg[-32:].decode())
                         sys.stdout.write('[Me] ')
                         sys.stdout.flush()
@@ -176,6 +157,7 @@ class VpnClient(threading.Thread):
                     # Read and send user's message
                     msg = sys.stdin.readline()
                     encrypted_msg = self.crypto.cipher.encrypt(msg)
+                    print("encrypted message to be sent ", encrypted_msg)
                     self.mysocket.send(encrypted_msg)
                     sys.stdout.write("[Me] ")
                     sys.stdout.flush()
@@ -199,5 +181,4 @@ class VpnClient(threading.Thread):
         # encrypt {ID, A's nonce, our session key part} with Master key
         msg = "%s %s" % (str(int.from_bytes(self.crypto.my_nonce, byteorder='little')),
                          self.crypto.encrypt_all())
-        print("CLIENT SEND CHALLENGE RESPONSE msg is %s" % msg)
         return msg
