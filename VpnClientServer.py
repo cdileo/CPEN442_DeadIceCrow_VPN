@@ -93,23 +93,24 @@ class VpnClientServer():
                                 self.crypto.peer_nonce = str(response[0])
                                 print("PEER NONCE")
                                 print(self.crypto.peer_nonce)
-                                # uncomment this when we encrypt
-                                # plain = self.crypto.decrypt_all(response[1])
-                                # plain is decrypted, unparsed string with nonce, id,
+                                
+                                temp = parser.parse_byte_string(data)
+                                plain = self.crypto.decrypt_all(temp[1].encode())
+                                print("PLAIN")
+                                print(plain)
 
+                                nonce_and_msg = parser.parse_plaintxt(plain)
+                                print(nonce_and_msg)
 
-                                sessionInfo = response[1:]
-                                print("SESSION INFO")
-                                print(int(sessionInfo[1]))
                                 print(self.crypto.my_nonce)
-                                if int(sessionInfo[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
+                                if int(nonce_and_msg[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
                                     print("[ERROR] Not my nonce, man.")
                                     sys.exit(1)
                                 else:
                                     print("verified nonce!")
                                     send_data = self.send_challenge_response()
                                     sock.send(send_data.encode())
-                                    self.crypto.session_key = (int(sessionInfo[2])**self.crypto.A) % self.crypto.p
+                                    self.crypto.session_key = (int(nonce_and_msg[2])**self.crypto.A) % self.crypto.p
                                     self.state = State.Final
                                 continue
 

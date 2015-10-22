@@ -3,6 +3,7 @@
 import os
 from Crypto.Cipher import AES
 from Crypto import Random
+import base64
 
 
 class CryptoCore():
@@ -18,8 +19,8 @@ class CryptoCore():
         self.id = id
         self.key = key
         self.iv = Random.new().read(AES.block_size)
-        #self.cipher = AES.new(self.key, AES.MODE_CFB, self.iv)
-        self.cipher = AES.new(self.key)
+        self.cipher = AES.new(self.key, AES.MODE_CFB, self.iv)
+        # self.cipher = AES.new(self.key)
 
 
     """
@@ -69,16 +70,18 @@ class CryptoCore():
     Encrypt second message
     """
     def encrypt_all(self):
-        print("ENCRYPT PEER NONCE")
+        print("ENCRYPT")
         print(self.peer_nonce)
         plain_text = self.id + " " + self.peer_nonce \
                      + " " + str(self.session_key)
-        # plain_text = plain_text.zfill(32)
-        #self.iv = Random.new().read(AES.block_size)
-        #self.cipher = AES.new(self.key, AES.MODE_CFB, self.iv)
-        # msg = self.iv + self.cipher.encrypt(plain_text)
-        msg = plain_text
-        print("msg is %s" % msg)
+
+        if(len(plain_text) < 32):
+            plain_text = plain_text.zfill(32)
+        
+        # self.iv = Random.new().read(AES.block_size)
+        msg =  base64.b64encode(self.iv + self.cipher.encrypt(plain_text))
+        
+        print(msg)
         # return msg.zfill(64)
         return msg
 
@@ -87,5 +90,5 @@ class CryptoCore():
     iv + E(P)
     """
     def decrypt_all(self, ciphertext):
-        # return self.cipher.decrypt(ciphertext) #.decode("utf-8")
-        return ciphertext
+        plaintext = self.cipher.decrypt(base64.b64decode(ciphertext))
+        return plaintext

@@ -116,16 +116,20 @@ class VpnClient(threading.Thread):
                                 # reponse is a list of string
                                 response = parser.parse_data(data)
                                 print("RESPONSE")
-                                print(response)
+                                print(response[0])
                                 # uncomment this when we encrypt
                                 # plain = self.crypto.decrypt_all(response[1])
                                 # plain is decrypted, unparsed string with nonce, id,
 
+                                parsed_byte_string = parser.parse_response(response[0])
+                                print("CLIENT PARSED BYTE STRING")
+                                print(parsed_byte_string)
 
-                                sessionInfo = response
-                                print("SESSION INFO")
-                                print(int(sessionInfo[1]))
-                                print(struct.unpack("<L",self.crypto.my_nonce)[0])
+                                plain_txt = self.crypto.decrypt_all(parsed_byte_string.encode())
+                                print("PLAINTEXT CLIENT")
+                                print(plain_txt)
+                                sessionInfo = parser.parse_plaintxt(plain_txt)
+                                
                                 if int(sessionInfo[1]) != struct.unpack("<L",self.crypto.my_nonce)[0]:
                                     print("[ERROR] Not my nonce, man.")
                                     sys.exit(1)
